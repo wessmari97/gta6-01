@@ -1,5 +1,0 @@
-# Solmar build outputs: out/ is what main.ts writes, out2/ is the
-# local determinism check (main.ts run twice, outputs compared).
-out/
-out2/
-__pycache__/
