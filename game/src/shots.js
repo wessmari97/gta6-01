@@ -1,8 +1,8 @@
 // Screenshot staging for Solmar: ?shot=start|drive|chase|mission (with
 // &seed=N) plays the real game forward from a fresh world to a fixed
-// frame, so each screenshot is what a short game really looks like and the
-// same seed always gives the same frame. The autopilot drives and walks
-// the way a player would, toward waypoints on the roads.
+// frame, so each screenshot is what a short game really looks like and
+// the same seed always gives the same frame. The autopilot drives and
+// walks the way a player would, toward waypoints on the roads.
 import { STEP, stepGame } from './game.js';
 import { startMission } from './missions.js';
 import { createCar, nearestStealable } from './vehicles.js';

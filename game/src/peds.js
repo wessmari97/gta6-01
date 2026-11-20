@@ -1,6 +1,6 @@
-// Pedestrians in Solmar: people walking the sidewalks and the parks, who
-// wander the city, flee from fast cars, and fall down when they are hit.
-// A pedestrian who is hurt is a crime, so they are the wanted system's
+// Pedestrians in Solmar: people walking the sidewalks and the parks.
+// They wander the city, run from fast cars, and fall down when they are
+// hit. A hurt pedestrian is a crime, so they are the wanted system's
 // most common trigger.
 import { pointBlocked, roadCenter } from './world.js';
 import { randPick, randRange } from './random.js';
@@ -13,7 +13,7 @@ const PANTS = ['#2f2f38', '#4a4a55', '#6b5a4a', '#3a4a5a'];
 
 function spawnPed(game) {
   const { city, rng } = game;
-  // Start on a sidewalk: beside a road, offset from its centre.
+  // Start on a pavement: beside a road, offset from its centre line.
   const horizontal = rng() < 0.5;
   let x;
   let y;
@@ -48,7 +48,7 @@ export function fillSidewalks(game) {
   for (let i = 0; i < PED_COUNT; i += 1) game.peds.push(spawnPed(game));
 }
 
-// A pedestrian that is down stays down, then gets up and walks away.
+// A pedestrian who is down stays down, then gets up and walks away.
 function updateDownPed(game, ped, dt) {
   ped.downTimer -= dt;
   if (ped.downTimer <= 0) {
@@ -87,7 +87,7 @@ export function updatePeds(game, dt) {
     const nx = ped.x + Math.cos(ped.angle) * speed * dt;
     const ny = ped.y + Math.sin(ped.angle) * speed * dt;
     if (pointBlocked(game.city, nx, ny, PED_RADIUS)) {
-      // Turned into a wall: turn around and try again next frame.
+      // Walked into a wall: turn around and try again next frame.
       ped.angle += Math.PI;
     } else {
       ped.x = nx;

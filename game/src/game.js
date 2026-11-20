@@ -105,9 +105,10 @@ export function endRun(game, kind) {
   writeSave(game);
 }
 
-// One fixed step of the game, in the order the systems depend on each other.
-// On the title screen only the city stays alive (traffic and people); the
-// player, the police and the missions wait for the game to start.
+// One fixed step of the game, in the order the systems depend on each
+// other. On the title screen only the city stays alive (traffic and
+// people); the player, the police and the missions wait for the game
+// to start.
 export function stepGame(game, dt) {
   game.time += dt;
   game.clockMin += dt * 0.5;

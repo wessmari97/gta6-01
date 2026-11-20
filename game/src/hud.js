@@ -103,7 +103,7 @@ export function drawMinimap(ctx, game, viewW, viewH) {
     ctx.arc(mx + marker.x * sx, my + marker.y * sy, 4 * pulse, 0, Math.PI * 2);
     ctx.fill();
   }
-  // Cars, police in blue, the player's car in white.
+  // Cars: police in blue, the player's car in white, the rest pale.
   for (const car of game.cars) {
     if (car.kind === 'parked') continue;
     ctx.fillStyle = car.kind === 'police' ? '#2f6fd9' : car === player.car ? '#ffffff' : '#e8e4da';
@@ -125,7 +125,7 @@ export function drawMinimap(ctx, game, viewW, viewH) {
   ctx.arc(mx + player.x * sx, my + player.y * sy, 6, 0, Math.PI * 2);
   ctx.stroke();
   ctx.restore();
-  // The view rectangle, so the player can see where they are looking.
+  // A frame around the map, so the player can see where they are looking.
   ctx.strokeStyle = 'rgba(255,255,255,0.5)';
   ctx.lineWidth = 1;
   ctx.strokeRect(mx - 4, my - 4, MAP_W + 8, MAP_H + 8);

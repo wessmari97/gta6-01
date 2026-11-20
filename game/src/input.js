@@ -1,7 +1,8 @@
-// Keyboard and mouse input for Solmar. One object owns the keys that are
-// held down and the ones that were just pressed, so the game can ask both
-// "is the player holding W" and "did the player just press E". The canvas
-// also reports clicks, which the menus use for their buttons.
+// Input for Solmar: keyboard state and mouse clicks on the canvas.
+// The game needs two different questions answered — "is this key held
+// right now" for movement, and "was this key pressed since the last
+// frame" for one-off actions like stealing a car — so this module keeps
+// both a held set and a per-frame tapped set.
 export function createInput(canvas) {
   const held = new Set();
   const tapped = new Set();
@@ -15,7 +16,7 @@ export function createInput(canvas) {
     return tapped.has(code);
   }
 
-  // The four movement directions, as -1, 0 or 1, from WASD or the arrows.
+  // Movement on both axes, each -1, 0 or 1, from WASD or the arrow keys.
   function moveAxis() {
     let x = 0;
     let y = 0;
@@ -30,7 +31,7 @@ export function createInput(canvas) {
     if (event.repeat) return;
     held.add(event.code);
     tapped.add(event.code);
-    // The game scrolls the page with arrows and space otherwise; keep it still.
+    // Arrows and space would scroll the page; the game wants them instead.
     if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'].includes(event.code)) {
       event.preventDefault();
     }
@@ -58,17 +59,17 @@ export function createInput(canvas) {
     isDown,
     wasTapped,
     moveAxis,
-    // True while the run key is held.
+    // True while either Shift key is held down.
     running() {
       return isDown('ShiftLeft') || isDown('ShiftRight');
     },
-    // The latest click, if any, in canvas pixels; null when there is none.
+    // The most recent click in canvas pixels, or null; reading it clears it.
     takeClick() {
       const found = click;
       click = null;
       return found;
     },
-    // Forget this frame's taps, called once per frame after the game reads them.
+    // Clear this frame's taps. The game calls this once per frame.
     endFrame() {
       tapped.clear();
     },

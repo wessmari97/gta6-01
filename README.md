@@ -73,4 +73,6 @@ Then open http://localhost:8080 in a desktop browser.
 
 The four screenshots are staged with `?shot=start|drive|chase|mission`
 (plus `&seed=N` for a fixed city), so each one is a real frame of the
-game playing itself.
+game playing itself. The drive and chase shots use the game's own
+autopilot, which steers the car along the roads the way a player would;
+the mission shot walks Rio toward the Marina pickup on foot.

@@ -1,8 +1,8 @@
-// The city of Solmar: a procedural grid of roads and blocks, built once
-// from a seeded generator so the same seed always builds the same city.
-// Roads run on a regular pitch; the squares between them hold buildings,
-// parks and plazas. The south edge is a beach and the sea. Districts give
-// each part of town its own look and its own name for the HUD.
+// The city of Solmar, built once from a seeded generator: a regular
+// grid of roads, with buildings, parks and plazas in the blocks between
+// them, a beach and the sea along the south edge, and five districts that
+// give each part of town its own colours and its own name on the HUD.
+// The same seed always builds the same city.
 import { randInt, randPick, randRange } from './random.js';
 
 export const WORLD_W = 3840;
@@ -15,7 +15,7 @@ export const WATER_Y = 3030;
 const COLS = 10;
 const ROWS = 8;
 
-// Warm, sun-soaked colours for the buildings, one set per district feel.
+// Building colours, warm and sun-soaked, one set per district mood.
 const PALETTE = {
   downtown: ['#c96f4a', '#b85c5a', '#d99a5b', '#8f6b4f', '#a85548'],
   oldtown: ['#d9a066', '#c98a5e', '#e0b184', '#b97a52', '#d18a6a'],
@@ -24,7 +24,7 @@ const PALETTE = {
   industrial: ['#8a7f74', '#7a6f66', '#9a8a7a', '#6f655c', '#a89a8a'],
 };
 
-// Which district a block belongs to, by its grid position.
+// A block's district, from where it sits in the grid.
 export function districtOfBlock(i, j) {
   if (j === ROWS - 1) return 'marina';
   if (i >= 3 && i <= 6 && j >= 2 && j <= 4) return 'downtown';
@@ -41,25 +41,26 @@ export const DISTRICT_NAMES = {
   industrial: 'East Industrial',
 };
 
-// The centre line of a road: axis 'h' runs left-right at height y, 'v' runs
-// up-down at width x. Roads sit on the grid pitch.
+// The centre line of one road. Axis 'h' is a road running left-right
+// at height y; 'v' is a road running up-down at width x.
 export function roadCenter(axis, index) {
   return index * PITCH + ROAD_W / 2;
 }
 
-// True when the point is on a road, with the road it is on.
+// Which road a point is on, if any, and the road's centre line.
 export function roadAt(city, x, y) {
   const col = Math.floor(x / PITCH);
   const row = Math.floor(y / PITCH);
-  const inRoadX = x - col * PITCH < ROAD_W;
-  const inRoadY = y - row * PITCH < ROAD_W;
-  if (inRoadY && col >= 0 && col < COLS) return { axis: 'h', index: row, center: roadCenter('h', row) };
-  if (inRoadX && row >= 0 && row < ROWS) return { axis: 'v', index: col, center: roadCenter('v', col) };
+  const onVertical = x - col * PITCH < ROAD_W;
+  const onHorizontal = y - row * PITCH < ROAD_W;
+  if (onHorizontal && col >= 0 && col < COLS) return { axis: 'h', index: row, center: roadCenter('h', row) };
+  if (onVertical && row >= 0 && row < ROWS) return { axis: 'v', index: col, center: roadCenter('v', col) };
   return null;
 }
 
-// True when a circle of the given radius at the point hits a building, the
-// sea, or the edge of the world. Roads, sidewalks, parks and sand are open.
+// True when a circle of the given radius at the point runs into a
+// building, the sea or the edge of the world. Roads, pavements, parks
+// and sand are all open ground.
 export function pointBlocked(city, x, y, radius) {
   if (x < radius || y < radius || x > WORLD_W - radius || y > WORLD_H - radius) return true;
   if (y > WATER_Y - radius) return true;
@@ -83,7 +84,7 @@ function buildBlock(city, rng, i, j) {
   const y0 = j * PITCH + ROAD_W;
   const size = PITCH - ROAD_W;
   const district = districtOfBlock(i, j);
-  // A few blocks are parks: green, trees, no buildings.
+  // Some blocks are parks instead: grass, trees, no buildings.
   const isPark = district !== 'downtown' && rng() < 0.16;
   if (isPark) {
     const trees = [];
@@ -98,7 +99,7 @@ function buildBlock(city, rng, i, j) {
   const slots = district === 'downtown' ? randInt(rng, 1, 2)
     : district === 'industrial' ? randInt(rng, 1, 2)
     : randInt(rng, 2, 4);
-  // Split the block into a small grid of plots and put one building in each.
+  // Cut the block into a little grid of plots, one building per plot.
   const across = slots <= 2 ? 1 : 2;
   const down = slots <= 2 ? slots : 2;
   const cellW = size / across;
@@ -124,7 +125,7 @@ function buildBlock(city, rng, i, j) {
   }
 }
 
-// Build the whole city from the generator: roads, blocks, beach and sea.
+// Build the full city from the generator: blocks, beach and sea.
 export function buildCity(rng) {
   const city = { width: WORLD_W, height: WORLD_H, buildings: [], parks: [] };
   for (let j = 0; j < ROWS - 1; j += 1) {
@@ -135,7 +136,7 @@ export function buildCity(rng) {
   return city;
 }
 
-// A point on a random road, for spawning cars and pedestrians.
+// A random point on a road, for spawning cars and pedestrians.
 export function randomRoadPoint(rng) {
   if (rng() < 0.5) {
     const row = randInt(rng, 0, ROWS - 1);
@@ -145,7 +146,7 @@ export function randomRoadPoint(rng) {
   return { x: roadCenter('v', col), y: randRange(rng, 60, BEACH_Y - 60) };
 }
 
-// A point on the road nearest a given spot, for placing the player.
+// The point on the road nearest a given spot, for placing the player.
 export function nearestRoadPoint(city, x, y) {
   const col = Math.max(0, Math.min(COLS - 1, Math.round(x / PITCH)));
   const row = Math.max(0, Math.min(ROWS - 1, Math.round(y / PITCH)));

@@ -1,7 +1,7 @@
-// Rendering for Solmar: the camera, the city, the cars and people, and the
-// screens (title, pause, busted, wasted, complete). Everything is drawn
-// with the canvas 2D API in a warm, sun-soaked palette. Only what the
-// camera sees is drawn, so a big city stays fast.
+// Rendering for Solmar: the camera, the city, the cars and people, and
+// the screens (title, pause, busted, wasted, complete). Everything is
+// drawn with the canvas 2D API in a warm, sun-soaked palette. Only what
+// the camera sees is drawn, so a big city stays fast.
 import { BEACH_Y, DISTRICT_NAMES, PITCH, ROAD_W, WATER_Y, WORLD_H, WORLD_W, districtAt } from './world.js';
 import { CAR_H, CAR_W } from './vehicles.js';
 import { drawHud, drawMinimap } from './hud.js';
@@ -67,7 +67,7 @@ function drawBeach(ctx, view) {
   ctx.fillRect(0, BEACH_Y, WORLD_W, WATER_Y - BEACH_Y);
   ctx.fillStyle = WATER;
   ctx.fillRect(0, WATER_Y, WORLD_W, WORLD_H - WATER_Y);
-  // Gentle waves: two sine lines that move with time.
+  // Gentle waves: two sine lines that drift with time.
   ctx.strokeStyle = WATER_DEEP;
   ctx.lineWidth = 3;
   for (let row = 0; row < 2; row += 1) {

@@ -1,8 +1,8 @@
-// Missions and the story of Solmar. The player is Rio, a driver for hire;
-// Mara, the fixer, hands out the jobs. Each mission is data: a name, a
-// short story, a list of steps and a cash reward. The mission system
-// tracks the current step, the objective marker, time limits and the
-// payout, and saves progress when a mission is done.
+// Missions and the story of Solmar. The player is Rio, a driver for
+// hire; Mara, the fixer, hands out the jobs. Each mission is data: a
+// name, a short story, a list of steps and a cash reward. The mission
+// system tracks the current step, the objective marker, time limits and
+// the payout, and saves progress when a mission is done.
 import { addWanted } from './police.js';
 
 // Places in the city, in world coordinates.
@@ -109,6 +109,16 @@ export function startMission(game, index) {
   if (def.startWanted) addWanted(game, def.startWanted, 'mission heat');
   showBanner(missions, `${def.name}\n${def.story}`, 5);
   return true;
+}
+
+// Skip to the next mission (the M key): drop the current job and start
+// the one after it, if there is one.
+export function skipMission(game) {
+  const missions = game.missions;
+  if (!missions.active) return false;
+  if (missions.index + 1 >= MISSIONS.length) return false;
+  missions.active = null;
+  return startMission(game, missions.index + 1);
 }
 
 // Restart the current mission from its first step (after a failure).

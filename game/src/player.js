@@ -1,7 +1,7 @@
-// The player on foot in Solmar: walking, running, punching, and taking
-// hits. The player is a circle that slides along buildings; when the
-// player drives, the car owns the movement instead and this module only
-// tracks health and the punch timer.
+// Rio on foot in Solmar: walking, running, punching, and taking hits.
+// The player is a circle that slides along buildings. While the player
+// drives, the car owns the movement and this module only tracks health
+// and the punch timer.
 import { pointBlocked } from './world.js';
 
 export const PLAYER_RADIUS = 14;
@@ -27,7 +27,7 @@ export function createPlayer(x, y) {
   };
 }
 
-// Try to move the player by (dx, dy), sliding along walls: first x, then y,
+// Move the player by (dx, dy), sliding along walls: try x first, then y,
 // so the player glides around corners instead of sticking to them.
 function tryMove(city, player, dx, dy) {
   const nx = player.x + dx;
@@ -53,8 +53,8 @@ export function updatePlayerOnFoot(game, dt) {
     tryMove(city, player, vx, vy);
   }
 
-  // Punch: a short arc in front of the player. It hits pedestrians and
-  // cops, and hitting one is a crime.
+  // A punch: a short arc in front of the player. It can hit pedestrians
+  // and cops, and hitting one is a crime.
   if ((input.wasTapped('Space') || input.wasTapped('KeyJ')) && player.punchTimer <= 0) {
     player.punchTimer = PUNCH_COOLDOWN;
     player.punchAnim = 0.22;
@@ -84,8 +84,8 @@ export function updatePlayerOnFoot(game, dt) {
   }
 }
 
-// A pedestrian that gets punched (or run over) falls down, stays down for
-// a while, and counts as a crime against the player.
+// A pedestrian who is punched (or run over) falls down, stays down for a
+// while, and counts as a crime against the player.
 export function knockPed(game, ped) {
   ped.down = true;
   ped.downTimer = 6;

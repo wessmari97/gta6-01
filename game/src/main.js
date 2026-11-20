@@ -10,6 +10,7 @@ import { STEP, createGame, readSave, startRun, stepGame } from './game.js';
 import { createInput } from './input.js';
 import { createRenderer } from './render.js';
 import { stageShot } from './shots.js';
+import { skipMission } from './missions.js';
 
 const MAX_FRAME = 0.25;
 
@@ -102,6 +103,10 @@ function runGame() {
     if (game.screen === 'paused' && input.takeClick()) {
       game.screen = 'play';
       announce('Playing.');
+    }
+    // M skips the current job and starts the next one.
+    if (game.screen === 'play' && input.wasTapped('KeyM')) {
+      skipMission(game);
     }
   }
 

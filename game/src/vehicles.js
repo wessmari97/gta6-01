@@ -1,7 +1,8 @@
-// Cars in Solmar: traffic that drives the roads, parked cars to steal, and
-// the car the player drives. Traffic follows the road grid with a simple
-// rule (keep right, slow for the car ahead, sometimes turn), so the city
-// feels alive without a full traffic simulation. Stealing a car is a crime.
+// Cars in Solmar: traffic that drives the roads, parked cars to steal,
+// and the car the player drives. Traffic follows the road grid with a
+// simple rule — keep right, slow for the car ahead, sometimes turn — so
+// the city feels alive without a full traffic simulation. Stealing a car
+// is a crime.
 import { BEACH_Y, pointBlocked, roadAt, roadCenter, randomRoadPoint, WORLD_H, WORLD_W } from './world.js';
 import { randPick, randRange } from './random.js';
 import { knockPed } from './player.js';
@@ -41,7 +42,7 @@ export function createCar(city, rng, kind, x, y, angle) {
   };
 }
 
-// A traffic car starts on a road, aligned with it.
+// A traffic car starts on a road, lined up with it.
 export function spawnTrafficCar(game) {
   const { city, rng } = game;
   const p = randomRoadPoint(rng);
@@ -91,7 +92,7 @@ export function fillStreets(game) {
   for (let i = 0; i < PARKED_COUNT; i += 1) game.cars.push(spawnParkedCar(game));
 }
 
-// The car directly ahead of this one on the same road, if it is close.
+// The car straight ahead of this one on the same road, if one is close.
 function carAhead(game, car) {
   let nearest = null;
   let nearestD = 90;
@@ -111,7 +112,7 @@ function carAhead(game, car) {
 
 function updateTrafficCar(game, car, dt) {
   const { city } = game;
-  // Slow down for the car ahead; otherwise cruise.
+  // Slow down for the car ahead; otherwise cruise at its own pace.
   const ahead = carAhead(game, car);
   const target = ahead ? 0 : car.cruise;
   car.speed += Math.max(-400 * dt, Math.min(200 * dt, target - car.speed));
@@ -132,7 +133,7 @@ function updateTrafficCar(game, car, dt) {
     }
   }
 
-  // Move, staying on the road: snap back to the lane each step.
+  // Move, staying in the lane: snap back to it each step.
   const nx = car.x + Math.cos(car.angle) * car.speed * dt;
   const ny = car.y + Math.sin(car.angle) * car.speed * dt;
   if (car.axis === 'h') {
@@ -212,9 +213,9 @@ function checkPedHits(game, car) {
   }
 }
 
-// Two cars bumping: push apart and slow both. Only a genuinely hard
-// hit (a big closing speed) dents either car — nudging through traffic
-// at city speeds costs time, not the whole car.
+// Two cars bumping: push apart and slow both. Only a genuinely hard hit
+// (a big closing speed) dents either car — nudging through traffic at
+// city speeds costs time, not the whole car.
 function checkCarHits(game, car) {
   for (const other of game.cars) {
     if (other === car) continue;
@@ -266,7 +267,7 @@ export function updateVehicles(game, dt) {
   }
 }
 
-// The nearest stealable car to the player, if one is close enough.
+// The nearest car the player can steal, if one is close enough.
 export function nearestStealable(game) {
   const { player } = game;
   let best = null;
@@ -282,7 +283,7 @@ export function nearestStealable(game) {
   return best;
 }
 
-// Get in the nearest car (stealing it is a crime) or get out of the car.
+// Get into the nearest car (stealing it is a crime) or step out of the car.
 export function toggleCar(game) {
   const { player } = game;
   if (player.onFoot) {

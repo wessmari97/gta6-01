@@ -1,6 +1,7 @@
-// Sound for Solmar, all synthesised with WebAudio: no audio files are
-// shipped. Everything is guarded, so a browser with no audio (or one that
-// blocks it until a gesture) simply plays silent instead of breaking.
+// All of Solmar's sound, made with WebAudio and nothing else: there
+// are no audio files to ship. Every call is guarded, so a browser with
+// no audio — or one that waits for a gesture before it allows sound —
+// just stays quiet instead of breaking the game.
 export function createAudio() {
   let context = null;
   let master = null;
@@ -50,7 +51,7 @@ export function createAudio() {
     }
   }
 
-  // A short burst of filtered noise, for impacts.
+  // A burst of filtered noise, for impacts and punches.
   function thud(vol = 0.5) {
     if (!context || !master) return;
     try {
@@ -76,12 +77,12 @@ export function createAudio() {
 
   return {
     ensure,
-    // A short click for menus.
+    // A short click for the menus.
     click() {
       if (!ensure()) return;
       tone(660, 0.07, 'square', 0.12);
     },
-    // A bright blip for pickups and cash.
+    // A bright two-note blip for pickups and cash.
     blip() {
       if (!ensure()) return;
       tone(880, 0.09, 'sine', 0.25);
@@ -95,7 +96,7 @@ export function createAudio() {
     // A low thud for punches and crashes.
     thud,
     // The engine hum: two oscillators whose pitch follows the speed.
-    // speed01 is 0..1, on is false when the player is on foot.
+    // speed01 runs 0..1; pass on as false while the player is on foot.
     engine(speed01, on) {
       if (!ensure()) return;
       try {
@@ -130,7 +131,7 @@ export function createAudio() {
         // Ignore audio failures.
       }
     },
-    // The police siren: one oscillator that swaps between two notes.
+    // The police siren: one oscillator swapping between two notes.
     // Call every frame with on true while the player is wanted.
     siren(on, dt) {
       if (!ensure()) return;
