@@ -1,8 +1,8 @@
-// The wanted system and the police of Solmar. Crimes add stars; the
-// police answer with foot cops and patrol cars that chase the player.
-// Stay out of sight and out of trouble and the heat cools off, one star
-// at a time. Get caught on foot and it is BUSTED; run out of health and
-// it is WASTED.
+// The wanted system and Solmar's police. Every crime adds stars, and
+// the police answer with foot cops and patrol cars that hunt the player
+// down. Stay out of sight and out of trouble and the heat cools off, one
+// star at a time. Get caught on foot and it is BUSTED; run out of health
+// and it is WASTED.
 import { BEACH_Y, pointBlocked, roadCenter } from './world.js';
 import { randRange } from './random.js';
 import { hurtPlayer } from './player.js';
@@ -20,8 +20,8 @@ export function createPolice() {
   };
 }
 
-// Raise the wanted level by stars (never above the cap) and remember when
-// the crime happened, for the cool-down.
+// Add stars to the wanted level (capped) and note when the crime
+// happened, which is what the cool-down counts from.
 export function addWanted(game, stars, reason) {
   const police = game.police;
   if (stars <= 0) return;
@@ -50,7 +50,7 @@ function spawnCop(game) {
 
 function spawnPoliceCar(game) {
   const { player, rng, city } = game;
-  // Start on the road nearest the player, a few blocks away.
+  // Begin on the road nearest the player, a few blocks away.
   const col = Math.max(0, Math.min(9, Math.round(player.x / 390)));
   const row = Math.max(0, Math.min(7, Math.round(player.y / 390)));
   const horizontal = rng() < 0.5;
@@ -73,7 +73,8 @@ function spawnPoliceCar(game) {
   };
 }
 
-// A foot cop runs at the player; touching a slow player on foot busts them.
+// A foot cop runs straight at the player; reaching a slow player on
+// foot busts them.
 function updateCop(game, cop, dt) {
   const { player } = game;
   if (cop.down) {
@@ -103,7 +104,7 @@ function updateCop(game, cop, dt) {
 // A police car drives toward the player's block and rams their car.
 function updatePoliceCar(game, car, dt) {
   const { player } = game;
-  // Steer toward the player: pick the axis that closes the bigger gap.
+  // Steer toward the player: take the axis that closes the bigger gap.
   const dx = player.x - car.x;
   const dy = player.y - car.y;
   const wantAxis = Math.abs(dx) > Math.abs(dy) ? 'h' : 'v';
@@ -138,7 +139,7 @@ function updatePoliceCar(game, car, dt) {
   if (d < 46) {
     if (player.onFoot) {
       if (hurtPlayer(game, 20)) game.endRun('wasted');
-      // Knock the player aside so the car does not sit on them.
+      // Shove the player aside so the car does not sit on them.
       player.x += (player.x - car.x) / (d || 1) * 30;
       player.y += (player.y - car.y) / (d || 1) * 30;
     } else if (player.car) {
@@ -158,27 +159,27 @@ export function updatePolice(game, dt) {
   const police = game.police;
   const { player } = game;
   // How many cops and cars the current wanted level calls for.
-  const wantCops = Math.min(3, police.wanted);
-  const wantCars = police.wanted >= 2 ? Math.min(3, police.wanted - 1) : 0;
-  while (police.cops.length < wantCops) police.cops.push(spawnCop(game));
-  while (police.cars.length < wantCars) {
+  const copsWanted = Math.min(3, police.wanted);
+  const carsWanted = police.wanted >= 2 ? Math.min(3, police.wanted - 1) : 0;
+  while (police.cops.length < copsWanted) police.cops.push(spawnCop(game));
+  while (police.cars.length < carsWanted) {
     const car = spawnPoliceCar(game);
     police.cars.push(car);
     game.cars.push(car);
   }
   // Cool down: no crime for a while and no cop nearby, lose a star.
-  const nearestCop = police.cops.reduce((best, cop) => {
+  const closestCop = police.cops.reduce((best, cop) => {
     const d = Math.hypot(cop.x - player.x, cop.y - player.y);
     return Math.min(best, d);
   }, Infinity);
-  if (police.wanted > 0 && game.time - police.lastCrime > DECAY_SECONDS && nearestCop > 500) {
+  if (police.wanted > 0 && game.time - police.lastCrime > DECAY_SECONDS && closestCop > 500) {
     police.wanted -= 1;
     police.lastCrime = game.time;
     if (police.wanted === 0) game.audio.siren(false, 0);
   }
   // Extra cops and cars melt away when the heat drops.
-  while (police.cops.length > wantCops) police.cops.pop();
-  while (police.cars.length > wantCars) {
+  while (police.cops.length > copsWanted) police.cops.pop();
+  while (police.cars.length > carsWanted) {
     const car = police.cars.pop();
     const index = game.cars.indexOf(car);
     if (index !== -1) game.cars.splice(index, 1);
