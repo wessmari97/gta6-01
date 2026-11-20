@@ -1,53 +1,76 @@
-// Keyboard and pointer input. Held keys give a steering direction; one-shot presses (start or
-// restart, pause) are queued as bit flags and taken once by the loop, so a press between two
-// frames is never lost and never counted twice.
+// Keyboard and mouse input for Solmar. One object owns the keys that are
+// held down and the ones that were just pressed, so the game can ask both
+// "is the player holding W" and "did the player just press E". The canvas
+// also reports clicks, which the menus use for their buttons.
+export function createInput(canvas) {
+  const held = new Set();
+  const tapped = new Set();
+  let click = null;
 
-export const ACTION_CONFIRM = 1;
-export const ACTION_PAUSE = 2;
+  function isDown(code) {
+    return held.has(code);
+  }
 
-const LEFT = new Set(['ArrowLeft', 'KeyA']);
-const RIGHT = new Set(['ArrowRight', 'KeyD']);
-const CONFIRM = new Set(['Space', 'Enter']);
-const PAUSE = new Set(['KeyP', 'Escape']);
+  function wasTapped(code) {
+    return tapped.has(code);
+  }
 
-export function createInput(target) {
-  let left = false;
-  let right = false;
-  let actions = 0;
+  // The four movement directions, as -1, 0 or 1, from WASD or the arrows.
+  function moveAxis() {
+    let x = 0;
+    let y = 0;
+    if (isDown('KeyA') || isDown('ArrowLeft')) x -= 1;
+    if (isDown('KeyD') || isDown('ArrowRight')) x += 1;
+    if (isDown('KeyW') || isDown('ArrowUp')) y -= 1;
+    if (isDown('KeyS') || isDown('ArrowDown')) y += 1;
+    return { x, y };
+  }
 
-  window.addEventListener('keydown', (event) => {
-    if (LEFT.has(event.code)) left = true;
-    else if (RIGHT.has(event.code)) right = true;
-    else if (CONFIRM.has(event.code)) {
-      if (!event.repeat) actions |= ACTION_CONFIRM;
-    } else if (PAUSE.has(event.code)) {
-      if (!event.repeat) actions |= ACTION_PAUSE;
-    } else return;
-    event.preventDefault();
-  });
-  window.addEventListener('keyup', (event) => {
-    if (LEFT.has(event.code)) left = false;
-    else if (RIGHT.has(event.code)) right = false;
-  });
-  // A key released while the tab is hidden never sends keyup: let go of everything on blur.
-  window.addEventListener('blur', () => {
-    left = false;
-    right = false;
-  });
-  target.addEventListener('pointerdown', () => {
-    actions |= ACTION_CONFIRM;
-  });
+  function onKeyDown(event) {
+    if (event.repeat) return;
+    held.add(event.code);
+    tapped.add(event.code);
+    // The game scrolls the page with arrows and space otherwise; keep it still.
+    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'].includes(event.code)) {
+      event.preventDefault();
+    }
+  }
+
+  function onKeyUp(event) {
+    held.delete(event.code);
+  }
+
+  function onBlur() {
+    held.clear();
+  }
+
+  function onClick(event) {
+    const rect = canvas.getBoundingClientRect();
+    click = { x: event.clientX - rect.left, y: event.clientY - rect.top };
+  }
+
+  window.addEventListener('keydown', onKeyDown);
+  window.addEventListener('keyup', onKeyUp);
+  window.addEventListener('blur', onBlur);
+  canvas.addEventListener('click', onClick);
 
   return {
-    /** -1 for left, 1 for right, 0 for neither or both. */
-    direction() {
-      return (right ? 1 : 0) - (left ? 1 : 0);
+    isDown,
+    wasTapped,
+    moveAxis,
+    // True while the run key is held.
+    running() {
+      return isDown('ShiftLeft') || isDown('ShiftRight');
     },
-    /** The one-shot presses since the last call, as ACTION_* flags. */
-    takeActions() {
-      const taken = actions;
-      actions = 0;
-      return taken;
+    // The latest click, if any, in canvas pixels; null when there is none.
+    takeClick() {
+      const found = click;
+      click = null;
+      return found;
+    },
+    // Forget this frame's taps, called once per frame after the game reads them.
+    endFrame() {
+      tapped.clear();
     },
   };
 }
